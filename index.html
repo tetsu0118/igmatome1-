@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>イチガクまとめサイト</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255,107,107,0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255,107,107,0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #4ecdc4, #44d3cc);
+            color: white;
+            box-shadow: 0 4px 15px rgba(78,205,196,0.3);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(78,205,196,0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #ff4757, #ff6b7a);
+            color: white;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            margin-left: 10px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .articles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .article-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .article-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .article-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+
+        .article-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.4rem;
+        }
+
+        .article-category {
+            display: inline-block;
+            background: linear-gradient(45deg, #ffeaa7, #fdcb6e);
+            color: #333;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .article-content {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .article-date {
+            color: #999;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .article-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-edit {
+            background: linear-gradient(45deg, #feca57, #ff9ff3);
+            color: white;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+        }
+
+        .search-box {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto 30px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            background: white;
+        }
+
+        .search-box::after {
+            content: '🔍';
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+        }
+
+        .filter-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 20px;
+            border: 2px solid white;
+            border-radius: 25px;
+            background: transparent;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: white;
+            color: #667eea;
+        }
+
+        .no-articles {
+            text-align: center;
+            color: white;
+            font-size: 1.5rem;
+            margin-top: 50px;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .actions {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .articles-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+                margin: 10% auto;
+                width: 95%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 イチガクまとめサイト</h1>
+            <p>あなたのイチガク情報をまとめよう</p>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-primary" onclick="openModal()">✍️ 新規記事作成</button>
+            <button class="btn btn-secondary" onclick="exportData()">📥 データエクスポート</button>
+            <button class="btn btn-secondary" onclick="openCategoryManager()">🗂️ カテゴリ管理</button>
+        </div>
+
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="記事を検索..." onkeyup="searchArticles()">
+        </div>
+
+        <div class="filter-buttons">
+            <button class="filter-btn active" onclick="filterByCategory('all')">すべて</button>
+            <button class="filter-btn" onclick="filterByCategory('数学')">数学</button>
+            <button class="filter-btn" onclick="filterByCategory('理科')">理科</button>
+            <button class="filter-btn" onclick="filterByCategory('社会')">社会</button>
+            <button class="filter-btn" onclick="filterByCategory('国語')">国語</button>
+            <button class="filter-btn" onclick="filterByCategory('英語')">英語</button>
+            <button class="filter-btn" onclick="filterByCategory('その他')">その他</button>
+        </div>
+
+        <div class="articles-grid" id="articlesGrid">
+            <!-- 記事がここに表示されます -->
+        </div>
+
+        <div class="no-articles" id="noArticles" style="display: none;">
+            まだ記事がありません。最初の記事を作成してみましょう！
+        </div>
+    </div>
+
+    <!-- モーダル -->
+    <div id="articleModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle">新規記事作成</h2>
+            <form id="articleForm">
+                <div class="form-group">
+                    <label for="title">タイトル</label>
+                    <input type="text" id="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="category">カテゴリ</label>
+                    <input type="text" id="category" list="categoryList" placeholder="カテゴリ名を入力または選択" required>
+                    <datalist id="categoryList">
+                        <!-- JavaScriptでカテゴリ一覧を自動生成 -->
+                    </datalist>
+
+                </div>
+                <div class="form-group">
+                    <label for="content">内容</label>
+                    <textarea id="content" required placeholder="学習内容をまとめてください..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">保存</button>
+            </form>
+        </div>
+    </div>
+    <div id="categoryModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeCategoryModal()">&times;</span>
+            <h2>カテゴリ管理</h2>
+            <ul id="categoryListManager"></ul>
+        </div>
+    </div>
+
+    <script>
+        let articles = JSON.parse(localStorage.getItem('ichigaku_articles')) || [];
+        let editingId = null;
+        let currentFilter = 'all';
+
+        // 記事を表示
+        function displayArticles(articlesToShow = articles) {
+            const grid = document.getElementById('articlesGrid');
+            const noArticles = document.getElementById('noArticles');
+            
+            if (articlesToShow.length === 0) {
+                grid.innerHTML = '';
+                noArticles.style.display = 'block';
+                return;
+            }
+            
+            noArticles.style.display = 'none';
+            
+            grid.innerHTML = articlesToShow.map(article => `
+                <div class="article-card">
+                    <h3>${article.title}</h3>
+                    <div class="article-category">${article.category}</div>
+                    <div class="article-date">${new Date(article.date).toLocaleDateString('ja-JP')}</div>
+                    <div class="article-content">${article.content.substring(0, 200)}${article.content.length > 200 ? '...' : ''}</div>
+                    <div class="article-actions">
+                        <button class="btn btn-edit" onclick="editArticle(${article.id})">編集</button>
+                        <button class="btn btn-danger" onclick="deleteArticle(${article.id})">削除</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // モーダルを開く
+        function openModal(id = null) {
+            const modal = document.getElementById('articleModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const form = document.getElementById('articleForm');
+            
+            if (id) {
+                const article = articles.find(a => a.id === id);
+                modalTitle.textContent = '記事編集';
+                document.getElementById('title').value = article.title;
+                document.getElementById('category').value = article.category;
+                document.getElementById('content').value = article.content;
+                editingId = id;
+            } else {
+                modalTitle.textContent = '新規記事作成';
+                form.reset();
+                editingId = null;
+            }
+            
+            modal.style.display = 'block';
+        }
+
+        // モーダルを閉じる
+        function closeModal() {
+            document.getElementById('articleModal').style.display = 'none';
+        }
+
+        // 記事を保存
+        document.getElementById('articleForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('title').value;
+            const category = document.getElementById('category').value;
+            if (!categories.includes(category)) {
+                categories.push(category);
+                localStorage.setItem('ichigaku_categories', JSON.stringify(categories));
+                displayCategoryButtons();
+            }
+
+            const content = document.getElementById('content').value;
+            
+            if (editingId) {
+                // 編集
+                const index = articles.findIndex(a => a.id === editingId);
+                articles[index] = {
+                    ...articles[index],
+                    title,
+                    category,
+                    content,
+                    date: new Date().toISOString()
+                };
+            } else {
+                // 新規作成
+                const newArticle = {
+                    id: Date.now(),
+                    title,
+                    category,
+                    content,
+                    date: new Date().toISOString()
+                };
+                articles.unshift(newArticle);
+            }
+            
+            localStorage.setItem('ichigaku_articles', JSON.stringify(articles));
+            displayArticles();
+            closeModal();
+            
+            // フィルターを再適用
+            if (currentFilter !== 'all') {
+                filterByCategory(currentFilter);
+            }
+        });
+
+        function openCategoryManager() {
+            const modal = document.getElementById('categoryModal');
+            const list = document.getElementById('categoryListManager');
+            list.innerHTML = categories.map((cat, index) => `
+                <li style="margin-bottom: 10px;">
+                    ${cat}
+                    <button onclick="deleteCategory(${index})" class="btn btn-danger">削除</button>
+                </li>
+            `).join('');
+            modal.style.display = 'block';
+        }
+
+        function closeCategoryModal() {
+            document.getElementById('categoryModal').style.display = 'none';
+        }
+
+        function deleteCategory(index) {
+            const cat = categories[index];
+            if (confirm(`カテゴリ「${cat}」を削除しますか？（既存記事は残ります）`)) {
+                categories.splice(index, 1);
+                localStorage.setItem('ichigaku_categories', JSON.stringify(categories));
+                displayCategoryButtons();
+                openCategoryManager(); // 更新再表示
+            }
+        }
+
+        // 記事を編集
+        function editArticle(id) {
+            openModal(id);
+        }
+
+        // 記事を削除
+        function deleteArticle(id) {
+            if (confirm('この記事を削除しますか？')) {
+                articles = articles.filter(a => a.id !== id);
+                localStorage.setItem('ichigaku_articles', JSON.stringify(articles));
+                displayArticles();
+                
+                // フィルターを再適用
+                if (currentFilter !== 'all') {
+                    filterByCategory(currentFilter);
+                }
+            }
+        }
+
+        // 記事を検索
+        function searchArticles() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            let filteredArticles = articles;
+            
+            // カテゴリフィルターを適用
+            if (currentFilter !== 'all') {
+                filteredArticles = articles.filter(article => article.category === currentFilter);
+            }
+            
+            // 検索フィルターを適用
+            if (searchTerm) {
+                filteredArticles = filteredArticles.filter(article => 
+                    article.title.toLowerCase().includes(searchTerm) || 
+                    article.content.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            displayArticles(filteredArticles);
+        }
+
+        let categories = JSON.parse(localStorage.getItem('ichigaku_categories')) || ["数学", "理科", "社会", "国語", "英語", "その他"];
+
+        function displayCategoryButtons() {
+            const container = document.querySelector('.filter-buttons');
+            container.innerHTML = `<button class="filter-btn active" onclick="filterByCategory('all')">すべて</button>`;
+            categories.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = 'filter-btn';
+                btn.textContent = cat;
+                btn.onclick = () => filterByCategory(cat);
+                container.appendChild(btn);
+            });
+
+            // datalist 更新
+            const list = document.getElementById('categoryList');
+            list.innerHTML = '';
+            categories.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat;
+                list.appendChild(opt);
+            });
+        }
+
+        window.onload = function() {
+            displayArticles();
+            displayCategoryButtons();
+        };
+
+
+        // カテゴリでフィルター
+        function filterByCategory(category) {
+            currentFilter = category;
+            
+            // アクティブなボタンを更新
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            let filteredArticles = articles;
+            if (category !== 'all') {
+                filteredArticles = articles.filter(article => article.category === category);
+            }
+            
+            displayArticles(filteredArticles);
+        }
+
+        // データをエクスポート
+        function exportData() {
+            const dataStr = JSON.stringify(articles, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'ichigaku_articles.json';
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // モーダルの外側をクリックしたら閉じる
+        window.onclick = function(event) {
+            const modal = document.getElementById('articleModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // 初期表示
+        displayArticles();
+    </script>
+</body>
+</html>
