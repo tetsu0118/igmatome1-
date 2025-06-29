@@ -409,6 +409,15 @@
             </ul>
         </div>
     </div>
+    <div id="viewModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeViewModal()">&times;</span>
+            <h2 id="viewTitle"></h2>
+            <div id="viewCategory" class="article-category"></div>
+            <div id="viewDate" class="article-date"></div>
+            <div id="viewContent" class="article-content" style="white-space: pre-wrap;"></div>
+        </div>
+    </div>
 
     <script>
         let articles = [];
@@ -432,7 +441,9 @@
                     <h3>${article.title}</h3>
                     <div class="article-category">${article.category}</div>
                     <div class="article-date">${new Date(article.date).toLocaleDateString('ja-JP')}</div>
-                    <div class="article-content">${article.content.substring(0, 200)}${article.content.length > 200 ? '...' : ''}</div>
+                    <div class="article-content">
+                        ${article.content.replace(/\n/g, '<br>').substring(0, 200)}${article.content.length > 200 ? '...' : ''}
+                    </div>
                     <div class="article-actions">
                         <button class="btn btn-edit" onclick="editArticle('${article.id}')">編集</button>
                         <button class="btn btn-danger" onclick="deleteArticle('${article.id}')">削除</button>
@@ -490,7 +501,12 @@
                     <h3>${article.title}</h3>
                     <div class="article-category">${article.category}</div>
                     <div class="article-date">${new Date(article.date).toLocaleDateString('ja-JP')}</div>
-                    <div class="article-content">${article.content.substring(0, 200)}${article.content.length > 200 ? '...' : ''}</div>
+                    <div class="article-content">
+                        ${article.content.replace(/\n/g, '<br>').substring(0, 100)}${article.content.length > 100 ? '...' : ''}
+                    </div>
+                    <button class="btn btn-secondary" onclick="viewArticle('${article.id}')">全文を見る</button>
+
+
                     <div class="article-actions">
                         <button class="btn btn-edit" onclick="editArticle(${article.id})">編集</button>
                         <button class="btn btn-danger" onclick="deleteArticle(${article.id})">削除</button>
@@ -712,7 +728,29 @@
             if (event.target === modal) {
                 closeModal();
             }
+            const viewModal = document.getElementById('viewModal');
+            if (event.target === viewModal) {
+                closeViewModal();
+            }
+
         }
+
+        function viewArticle(id) {
+            const article = articles.find(a => a.id === id || a.id == id);
+            if (!article) return;
+
+            document.getElementById('viewTitle').innerText = article.title;
+            document.getElementById('viewCategory').innerText = Array.isArray(article.category) ? article.category.join(', ') : article.category;
+            document.getElementById('viewDate').innerText = new Date(article.date).toLocaleString('ja-JP');
+            document.getElementById('viewContent').innerHTML = article.content.replace(/\n/g, '<br>');
+
+            document.getElementById('viewModal').style.display = 'block';
+        }
+
+        function closeViewModal() {
+            document.getElementById('viewModal').style.display = 'none';
+        }
+
 
         // 初期表示
         displayArticles();
