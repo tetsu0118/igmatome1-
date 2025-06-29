@@ -336,6 +336,7 @@
             <button class="btn btn-primary" onclick="openModal()">✍️ 新規記事作成</button>
             <button class="btn btn-secondary" onclick="exportData()">📥 データエクスポート</button>
             <button class="btn btn-secondary" onclick="openCategoryManager()">🗂️ カテゴリ管理</button>
+            <button class="btn btn-secondary" onclick="openGuide()">📘 使い方ガイド</button>
         </div>
 
         <div class="search-box">
@@ -392,6 +393,20 @@
             <span class="close" onclick="closeCategoryModal()">&times;</span>
             <h2>カテゴリ管理</h2>
             <ul id="categoryListManager"></ul>
+        </div>
+    </div>
+    <div id="guideModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeGuide()">&times;</span>
+            <h2>使い方ガイド</h2>
+            <p><b>このサイトでは、以下のことができます：</b></p>
+            <ul>
+            <li>✓ 記事を作成し、タイトル・カテゴリ・内容を入力</li>
+            <li>✓ 記事は保存され、一覧表示</li>
+            <li>✓ カテゴリを自由に追加して分類</li>
+            <li>✓ エクスポートで記事データを保存可能</li>
+            <li>✓ 複数人とリアルタイム共有可能</li>
+            </ul>
         </div>
     </div>
 
@@ -624,6 +639,15 @@
         }
 
         let categories = JSON.parse(localStorage.getItem('ichigaku_categories')) || ["数学", "理科", "社会", "国語", "英語", "その他"];
+        
+        function openGuide() {
+            document.getElementById('guideModal').style.display = 'block';
+        }
+
+        function closeGuide() {
+            document.getElementById('guideModal').style.display = 'none';
+        }
+
 
         function displayCategoryButtons() {
             const container = document.querySelector('.filter-buttons');
