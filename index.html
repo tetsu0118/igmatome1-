@@ -328,7 +328,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>📚 イチガクまとめサイト</h1>
+            <h1>イチガクまとめサイト</h1>
             <p>あなたのイチガク情報をまとめよう</p>
         </div>
 
@@ -396,9 +396,66 @@
     </div>
 
     <script>
-        let articles = JSON.parse(localStorage.getItem('ichigaku_articles')) || [];
+        let articles = [];
         let editingId = null;
+
+        async function displayArticles() {
+            articles = await firebaseAPI.getArticlesFromFirebase();
+            const grid = document.getElementById('articlesGrid');
+            const noArticles = document.getElementById('noArticles');
+
+            if (articles.length === 0) {
+                grid.innerHTML = '';
+                noArticles.style.display = 'block';
+                return;
+            }
+
+            noArticles.style.display = 'none';
+
+            grid.innerHTML = articles.map(article => `
+                <div class="article-card">
+                    <h3>${article.title}</h3>
+                    <div class="article-category">${article.category}</div>
+                    <div class="article-date">${new Date(article.date).toLocaleDateString('ja-JP')}</div>
+                    <div class="article-content">${article.content.substring(0, 200)}${article.content.length > 200 ? '...' : ''}</div>
+                    <div class="article-actions">
+                        <button class="btn btn-edit" onclick="editArticle('${article.id}')">編集</button>
+                        <button class="btn btn-danger" onclick="deleteArticle('${article.id}')">削除</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        document.getElementById('articleForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+            const title = document.getElementById('title').value;
+            const category = document.getElementById('category').value;
+            const content = document.getElementById('content').value;
+
+            const articleData = {
+                title, category, content,
+                date: new Date().toISOString()
+            };
+
+            if (editingId) {
+                // 編集機能は後で追加
+            } else {
+                await firebaseAPI.saveArticleToFirebase(articleData);
+            }
+
+            closeModal();
+            displayArticles();
+         });
+
         let currentFilter = 'all';
+        
+        async function deleteArticle(id) {
+            if (confirm('この記事を削除しますか？')) {
+                await firebaseAPI.deleteArticleFromFirebase(id);
+                displayArticles();
+            }
+        }
 
         // 記事を表示
         function displayArticles(articlesToShow = articles) {
