@@ -422,60 +422,6 @@
     <script>
         let articles = [];
         let editingId = null;
-
-        async function displayArticles() {
-            articles = JSON.parse(localStorage.getItem('ichigaku_articles')) || [];
-            const grid = document.getElementById('articlesGrid');
-            const noArticles = document.getElementById('noArticles');
-
-            if (articles.length === 0) {
-                grid.innerHTML = '';
-                noArticles.style.display = 'block';
-                return;
-            }
-
-            noArticles.style.display = 'none';
-
-            grid.innerHTML = articles.map(article => `
-                <div class="article-card">
-                    <h3>${article.title}</h3>
-                    <div class="article-category">${article.category}</div>
-                    <div class="article-date">${new Date(article.date).toLocaleDateString('ja-JP')}</div>
-                    <div class="article-content">
-                        ${article.content.replace(/\n/g, '<br>').substring(0, 200)}${article.content.length > 200 ? '...' : ''}
-                    </div>
-                    <div class="article-actions">
-                        <button class="btn btn-edit" onclick="editArticle('${article.id}')">編集</button>
-                        <button class="btn btn-danger" onclick="deleteArticle('${article.id}')">削除</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        document.getElementById('articleForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-
-            const title = document.getElementById('title').value;
-            const category = document.getElementById('category').value;
-            const content = document.getElementById('content').value;
-
-            const articleData = {
-                title, category, content,
-                date: new Date().toISOString()
-            };
-
-            if (editingId) {
-                // 編集機能は後で追加
-            } else {
-                articles.unshift(articleData);
-                localStorage.setItem('ichigaku_articles', JSON.stringify(articles));
-
-            }
-
-            closeModal();
-            displayArticles();
-         });
-
         let currentFilter = 'all';
         
         async function deleteArticle(id) {
