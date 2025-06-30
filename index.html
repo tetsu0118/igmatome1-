@@ -424,7 +424,7 @@
         let editingId = null;
 
         async function displayArticles() {
-            articles = await firebaseAPI.getArticlesFromFirebase();
+            articles = JSON.parse(localStorage.getItem('ichigaku_articles')) || [];
             const grid = document.getElementById('articlesGrid');
             const noArticles = document.getElementById('noArticles');
 
@@ -467,7 +467,9 @@
             if (editingId) {
                 // 編集機能は後で追加
             } else {
-                await firebaseAPI.saveArticleToFirebase(articleData);
+                articles.unshift(articleData);
+                localStorage.setItem('ichigaku_articles', JSON.stringify(articles));
+
             }
 
             closeModal();
@@ -478,7 +480,9 @@
         
         async function deleteArticle(id) {
             if (confirm('この記事を削除しますか？')) {
-                await firebaseAPI.deleteArticleFromFirebase(id);
+                articles = articles.filter(a => a.id !== id);
+                localStorage.setItem('ichigaku_articles', JSON.stringify(articles));
+
                 displayArticles();
             }
         }
