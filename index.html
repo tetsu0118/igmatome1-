@@ -435,6 +435,9 @@
 
         // 記事を表示
         function displayArticles(articlesToShow = articles) {
+            
+            articles = JSON.parse(localStorage.getItem('ichigaku_articles')) || [];
+            
             const grid = document.getElementById('articlesGrid');
             const noArticles = document.getElementById('noArticles');
             
